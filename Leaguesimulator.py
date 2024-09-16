@@ -21,7 +21,6 @@ class Team:
         self.goal_difference += (goals_scored - goals_conceded)
         self.matches_played += 1
         
-        # Update results based on score
         if goals_scored > goals_conceded:
             self.wins += 1
             self.points += 3
@@ -92,11 +91,10 @@ class League:
 
     def reset_league(self):
         self.teams = {team.name: Team(team.name) for team in self.initial_teams}
-        self.save_teams()  # Save initial state
+        self.save_teams()
 
-        # Reset gameweek file
         with open(self.gameweek_file, 'w') as f:
-            json.dump({'gameweek': 0}, f)  # Start from gameweek 0
+            json.dump({'gameweek': 0}, f)  
 
     def play_match(self, home_team_name, away_team_name, home_goals, away_goals):
         home_team = self.teams[home_team_name]
@@ -108,18 +106,16 @@ class League:
     def display_table(self):
         gameweek = self.load_gameweek()
         filename = 'league_table.txt'
-        
-        # Extract points, goal difference, and matches played into arrays
+    
         points = np.array([team.points for team in self.teams.values()])
         goal_difference = np.array([team.goal_difference for team in self.teams.values()])
         games_played = np.array([team.matches_played for team in self.teams.values()])
         
-        # Sort by points (primary) and goal difference (secondary)
-        sorted_indices = np.lexsort((-goal_difference, -points))  # Negative for descending order
+        sorted_indices = np.lexsort((-goal_difference, -points))  
         
         sorted_teams = [list(self.teams.values())[i] for i in sorted_indices]
 
-        with open(filename, 'w') as f:  # Open file in append mode
+        with open(filename, 'w') as f: 
             f.write(f"\nGameweek {gameweek +1}\n")
             f.write("Team, Points, GD, Games Played\n")
             for team in sorted_teams:
@@ -128,24 +124,21 @@ class League:
         print(f"League table for gameweek {gameweek +1} has been written to '{filename}'.")
 
     def play_gameweek(self):
-        # Shuffle teams to randomize matchups
+        
         random.shuffle(list(self.teams.values()))
         
-        # Loop through the teams in pairs
         for i in range(0, len(self.teams), 2):
             home_team = list(self.teams.values())[i]
             away_team = list(self.teams.values())[i + 1]
             
-            # Randomize goals for both teams for simplicity
             home_goals = random.randint(0, 5)
             away_goals = random.randint(0, 5)
             
-            # Play the match
             self.play_match(home_team.name, away_team.name, home_goals, away_goals)
             print(f"Match Result: {home_team.name} {home_goals} - {away_goals} {away_team.name}")
 
     def simulate_season(self):
-        self.load_teams()  # Load saved team states
+        self.load_teams()  
         current_gameweek = self.load_gameweek()
         new_gameweek = current_gameweek + 1
         print(f"\nGameweek {new_gameweek}")
@@ -153,24 +146,21 @@ class League:
         self.play_gameweek()
         self.display_table()
         self.save_gameweek(new_gameweek)
-        self.save_teams()  # Save team states
+        self.save_teams()  
 
-# List of team names
 team_names = [
     'Arsenal', 'Aston Villa', 'Bournemouth', 'Brentford', 'Brighton', 'Chelsea', 'Crystal Palace', 
     'Everton', 'Fulham', 'Ipswich', 'Leicester', 'Liverpool', 'Man City', 'Man UTD', 'Newcastle', 
     'Notts Forest', 'Southampton', 'Tottenham', 'West Ham', 'Wolves'
 ]
 
-# Instantiate Team objects for each team
 teams = [Team(name) for name in team_names]
 
-# Instantiate the league with the list of Team objects
 premier_league = League(teams)
 
-# Simulate the season
+
 premier_league.simulate_season()
 
-# To reset the league:
+# #To reset the league:
 # premier_league.reset_league()
 # print("League has been reset.")
